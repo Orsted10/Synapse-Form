@@ -1622,3 +1622,119 @@ body {
     height: 120px;
   }
 }
+
+/* ── Orientation Feedback Form Styles ───────── */
+
+.ascii-art {
+  font-family: var(--font-mono);
+  font-size: clamp(0.35rem, 1.2vw, 0.9rem);
+  color: var(--accent-primary);
+  text-shadow: 0 0 10px var(--accent-glow);
+  margin-bottom: 20px;
+  opacity: 0.8;
+  animation: pulse 4s infinite alternate;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 25px;
+  width: 100%;
+}
+
+.option-button {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-glass);
+  padding: 15px 20px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(5px);
+}
+
+.option-button:hover {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.5);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(124, 58, 237, 0.15);
+}
+
+.option-button.selected {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary-light);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3) inset;
+}
+
+.option-button .bracket {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.option-button.selected .bracket {
+  color: var(--accent-primary);
+  opacity: 1;
+}
+
+.rating-group {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.rating-button {
+  background: transparent;
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rating-button:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary-light);
+  transform: scale(1.1);
+}
+
+.rating-button.selected {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 25px var(--accent-glow);
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .rating-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  
+  .ascii-art {
+    margin-bottom: 10px;
+  }
+}
