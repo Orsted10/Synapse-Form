@@ -70,6 +70,19 @@ function GlitchText({ text }: { text: string }) {
   );
 }
 
+// ── Utils ──────────────────────────────────────────────
+const playHaptic = () => {
+  if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate(40);
+  }
+};
+
+const playHapticHeavy = () => {
+  if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate([30, 50, 30]);
+  }
+};
+
 // ── Fancy Input ───────────────────────────────────────
 function FancyInput({
   name, value, onChange, placeholder, error, autoFocus, type = "text"
