@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { MemberFormData } from "@/lib/supabase";
+import { FeedbackFormData } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const supabaseAdmin = createClient(url, serviceKey);
 
     const { data, error } = await supabaseAdmin
-      .from("members")
+      .from("orientation_feedback")
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, data: data as MemberFormData[] });
+    return NextResponse.json({ success: true, data: data as FeedbackFormData[] });
   } catch (error) {
     return NextResponse.json({ success: false, error: "Unexpected server error" }, { status: 500 });
   }

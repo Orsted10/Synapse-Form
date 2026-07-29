@@ -19,21 +19,23 @@ function getSupabase(): SupabaseClient | null {
   return supabaseInstance;
 }
 
-export interface MemberFormData {
+export interface FeedbackFormData {
   full_name: string;
   uid: string;
-  email: string;
-  course_year: string;
-  contact_number: string;
-  areas_of_interest: string[];
-  collaboration_preferences: string[];
-  club_expectations: string;
-  expected_outcomes: string;
-  additional_ideas: string;
+  branch: string;
+  section: string;
+  session_rating: number; // 1-5
+  favorite_part: string;
+  informative_rating: string;
+  engaging_rating: number; // 1-5
+  motivation_level: string;
+  event_preferences: string[];
+  become_member: string;
+  suggestions: string;
 }
 
-export async function submitMemberForm(
-  data: MemberFormData
+export async function submitFeedbackForm(
+  data: FeedbackFormData
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabase();
 
@@ -46,12 +48,12 @@ export async function submitMemberForm(
   }
 
   try {
-    const { error } = await supabase.from("members").insert([data]);
+    const { error } = await supabase.from("orientation_feedback").insert([data]);
 
     if (error) {
       console.error("Supabase insert error:", error);
       if (error.code === '23505') {
-        return { success: false, error: "This UID is already registered in the system." };
+        return { success: false, error: "This UID has already submitted feedback!" };
       }
       return { success: false, error: error.message };
     }
@@ -60,18 +62,5 @@ export async function submitMemberForm(
   } catch (err) {
     console.error("Unexpected error:", err);
     return { success: false, error: "An unexpected error occurred." };
-  }
-}
-
-export async function getMembers(): Promise<{ success: boolean; data?: MemberFormData[]; error?: string }> {
-  const supabase = getSupabase();
-  if (!supabase) return { success: false, error: "Database not connected." };
-
-  try {
-    const { data, error } = await supabase.from("members").select("*").order("created_at", { ascending: false });
-    if (error) return { success: false, error: error.message };
-    return { success: true, data: data as MemberFormData[] };
-  } catch (err) {
-    return { success: false, error: "Unexpected error fetching members." };
   }
 }
