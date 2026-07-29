@@ -78,6 +78,14 @@ function FancyInput({
   placeholder?: string; error?: string; autoFocus?: boolean; type?: string;
 }) {
   const [focused, setFocused] = useState(false);
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Tiny haptic feedback on typing
+    if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(10); 
+    }
+  };
+
   return (
     <div className="fancy-input-wrapper">
       <div className={`fancy-input-container ${focused ? "focused" : ""} ${error ? "has-error" : ""}`}>
@@ -91,6 +99,7 @@ function FancyInput({
           name={name}
           value={value}
           onChange={onChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder || "_"}
@@ -150,7 +159,7 @@ function OptionBtn({
 }) {
   return (
     <motion.button
-      onClick={onClick}
+      onClick={() => { playHaptic(); onClick(); }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       className={`option-btn ${selected ? "option-btn-selected" : ""}`}
@@ -168,7 +177,7 @@ function OptionBtn({
 function RatingBtn({ num, selected, onClick, label }: { num: number; selected: boolean; onClick: () => void; label?: string }) {
   return (
     <motion.button
-      onClick={onClick}
+      onClick={() => { playHaptic(); onClick(); }}
       whileHover={{ scale: 1.12, y: -3 }}
       whileTap={{ scale: 0.95 }}
       className={`rating-btn ${selected ? "rating-btn-selected" : ""}`}
@@ -194,7 +203,7 @@ function NavButtons({
       className="nav-row"
     >
       <motion.button
-        onClick={onBack}
+        onClick={() => { playHaptic(); onBack(); }}
         whileHover={{ x: -3 }}
         whileTap={{ scale: 0.95 }}
         className="nav-back-btn"
@@ -206,7 +215,7 @@ function NavButtons({
       <div className="nav-right">
         {canSkip && onSkip && (
           <motion.button
-            onClick={onSkip}
+            onClick={() => { playHaptic(); onSkip(); }}
             whileHover={{ opacity: 0.8 }}
             className="nav-skip-btn"
           >
@@ -214,7 +223,7 @@ function NavButtons({
           </motion.button>
         )}
         <motion.button
-          onClick={onNext}
+          onClick={() => { playHapticHeavy(); onNext(); }}
           disabled={isSubmitting}
           whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(168,85,247,0.6)" }}
           whileTap={{ scale: 0.97 }}
@@ -248,7 +257,7 @@ function QuestionHeader({ step, file, question }: { step: number; file: string; 
         <span className="q-file">{file}</span>
       </div>
       <h2 className="q-question">
-        <span className="q-prompt">&gt;</span> {question}
+        <span className="q-prompt">&gt;</span> <ScrambleText text={question} />
       </h2>
     </div>
   );
@@ -276,6 +285,7 @@ export default function FormSequence() {
       if (e.key === "Enter" && !isSubmitting && step > 0 && step < 13) {
         if (document.activeElement?.tagName === "TEXTAREA") return;
         e.preventDefault();
+        playHapticHeavy();
         goNext();
       }
     };
@@ -625,6 +635,10 @@ export default function FormSequence() {
     <>
       <VideoBackground />
       <ParticleField />
+      
+      {/* Immersive CRT Overlays */}
+      <div className="vignette-overlay pointer-events-none" />
+      <div className="scanlines-overlay pointer-events-none" />
 
       <AnimatePresence>
         {showLoading && (
