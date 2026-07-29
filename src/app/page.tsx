@@ -293,9 +293,9 @@ export default function FormSequence() {
             exit="exit"
             className="terminal-content welcome-module"
           >
-            <motion.div variants={childVariants} className="ascii-art">
+            <motion.pre variants={childVariants} className="ascii-art" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.2, textAlign: "center" }}>
               {"   _____ __  __ _   _          _____  _____  ______ \n  / ____|  \\/  | \\ | |        / ____|/ ____||  ____|\n | (___ | \\  / |  \\| | ______| (___ | (___  | |__   \n  \\___ \\| |\\/| | . ` |______\\___ \\ \\___ \\ |  __|  \n  ____) | |  | | |\\  |        ____) |____) || |____ \n |_____/|_|  |_|_| \\_|       |_____/|_____/ |______|\n"}
-            </motion.div>
+            </motion.pre>
             <motion.h1 variants={childVariants} className="terminal-title">
               <GlitchText text="ORIENTATION FEEDBACK" active={true} />
             </motion.h1>
