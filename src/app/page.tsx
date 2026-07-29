@@ -91,6 +91,7 @@ function GlitchText({ text, active }: { text: string; active?: boolean }) {
 export default function FormSequence() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [showLoading, setShowLoading] = useState(true);
   const [formData, setFormData] = useState<FeedbackFormData>(initialFormData);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -655,8 +656,11 @@ export default function FormSequence() {
       <VideoBackground />
       <ParticleField />
       
-      {/* Remove LoadingSequence for development speed, or hook it back up if you want */}
-      <LoadingSequence onComplete={() => {}} />
+      <AnimatePresence>
+        {showLoading && (
+          <LoadingSequence key="loading" onComplete={() => setShowLoading(false)} />
+        )}
+      </AnimatePresence>
 
       <ProgressBar current={step} total={12} />
 
