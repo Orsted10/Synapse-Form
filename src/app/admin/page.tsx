@@ -87,7 +87,7 @@ export default function AdminDashboard() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     initAudio();
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    if (password === "synapse2026") {
       playSuccessSound();
       setIsAuthenticated(true);
       fetchData();
