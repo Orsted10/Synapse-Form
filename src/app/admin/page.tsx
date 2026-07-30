@@ -83,6 +83,7 @@ export default function AdminDashboard() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "rating" | "engagement">("date");
+  const [isSortOpen, setIsSortOpen] = useState(false);
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [logs, setLogs] = useState<string[]>(["[ SYS.AUTH ] Enter passphrase..."]);
@@ -127,6 +128,39 @@ export default function AdminDashboard() {
       setLogs((prev) => [...prev, `[ SYS.ERR ] Network error.`]);
     }
     
+    setLoading(false);
+  };
+
+  const deleteRecord = async (uid?: string, deleteAll: boolean = false) => {
+    if (deleteAll) {
+      if (!window.confirm("CRITICAL WARNING: This will permanently delete ALL records from the database. Are you absolutely sure?")) return;
+      if (prompt("Type 'NUKE' to confirm:") !== "NUKE") return;
+    } else {
+      if (!window.confirm(`Are you sure you want to delete record ${uid}?`)) return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/admin/members", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, uid, deleteAll })
+      });
+      const { success, error } = await response.json();
+      if (success) {
+        if (deleteAll) {
+          setMembers([]);
+        } else {
+          setMembers(prev => prev.filter(m => m.uid !== uid));
+          setCurrentIndex(0);
+        }
+        playSuccessSound();
+      } else {
+        alert("Deletion failed: " + error);
+      }
+    } catch (err) {
+      alert("Network error during deletion.");
+    }
     setLoading(false);
   };
 
@@ -214,15 +248,17 @@ export default function AdminDashboard() {
               ))}
             </div>
             <form onSubmit={handleLogin} style={{ display: 'flex', gap: '10px' }}>
-              <span style={{ color: 'var(--accent-primary)' }}>$</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoFocus
-                className="cli-input"
-                style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none' }}
-              />
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(20, 20, 35, 0.6)', padding: '10px 15px', borderRadius: '4px', border: '1px solid rgba(168, 85, 247, 0.3)', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5), 0 0 15px rgba(168, 85, 247, 0.1)', flex: 1 }}>
+                <span style={{ color: 'var(--accent-primary)', textShadow: '0 0 5px var(--accent-primary)' }}>$</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoFocus
+                  className="cli-input"
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontFamily: 'var(--font-mono)', letterSpacing: '2px', textShadow: '0 0 5px rgba(255,255,255,0.5)' }}
+                />
+              </div>
             </form>
           </div>
         </div>
@@ -479,6 +515,28 @@ export default function AdminDashboard() {
                   </div>
                 </TiltWrapper>
               </motion.div>
+
+              {/* Danger Zone */}
+              <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
+                <TiltWrapper>
+                  <div className="admin-card-glow" style={{ border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.05)' }}>
+                    <h3 className="admin-card-title" style={{ color: '#ef4444', textShadow: '0 0 10px rgba(239,68,68,0.5)' }}>[ DANGER_ZONE ]</h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '600px' }}>
+                        Wipe all records from the database. This action is irreversible. It will destroy all {members.length} responses permanently.
+                      </div>
+                      <button
+                        onClick={() => { playHapticHeavy(); deleteRecord(undefined, true); }}
+                        style={{ padding: '12px 24px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '4px', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 'bold', letterSpacing: '2px', transition: 'all 0.3s', boxShadow: '0 0 20px rgba(239,68,68,0.3)' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.4)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(239,68,68,0.6)'; playHoverSound(); }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(239,68,68,0.3)'; }}
+                      >
+                        ⚠ NUKE_DATABASE
+                      </button>
+                    </div>
+                  </div>
+                </TiltWrapper>
+              </motion.div>
           </motion.div>
           )}
 
@@ -496,18 +554,40 @@ export default function AdminDashboard() {
                     placeholder="Search by Name or UID..." 
                     value={searchQuery}
                     onChange={(e) => { setSearchQuery(e.target.value); setCurrentIndex(0); }}
-                    style={{ width: '100%', padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#fff', outline: 'none' }}
+                    style={{ width: '100%', padding: '12px 20px', background: 'rgba(20, 20, 35, 0.6)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#fff', outline: 'none', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)', fontFamily: 'var(--font-mono)' }}
                   />
                 </div>
-                <select 
-                  value={sortBy} 
-                  onChange={(e: any) => { setSortBy(e.target.value); setCurrentIndex(0); }}
-                  style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#fff', outline: 'none' }}
-                >
-                  <option value="date" style={{ color: '#000' }}>Sort by Date</option>
-                  <option value="rating" style={{ color: '#000' }}>Sort by Highest Rating</option>
-                  <option value="engagement" style={{ color: '#000' }}>Sort by Highest Engagement</option>
-                </select>
+                <div style={{ position: 'relative', minWidth: '260px' }}>
+                  <button
+                    onClick={() => { playClickSound(); setIsSortOpen(!isSortOpen); }}
+                    style={{ width: '100%', padding: '12px 20px', background: isSortOpen ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.1)', border: '1px solid var(--accent-primary)', borderRadius: '8px', color: 'var(--accent-primary)', outline: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontFamily: 'var(--font-mono)', transition: 'all 0.3s', boxShadow: isSortOpen ? '0 0 20px rgba(168, 85, 247, 0.4)' : '0 0 10px rgba(168, 85, 247, 0.1)' }}
+                  >
+                    {sortBy === "date" ? "Sort by Date" : sortBy === "rating" ? "Sort by Highest Rating" : "Sort by Highest Engagement"}
+                    <span style={{ transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>
+                  </button>
+                  <AnimatePresence>
+                    {isSortOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '8px', background: 'rgba(10, 10, 20, 0.95)', border: '1px solid var(--accent-primary)', borderRadius: '8px', overflow: 'hidden', zIndex: 100, boxShadow: '0 10px 40px rgba(168, 85, 247, 0.3)', backdropFilter: 'blur(16px)' }}
+                      >
+                        {["date", "rating", "engagement"].map((val) => (
+                          <div
+                            key={val}
+                            onClick={() => { setSortBy(val as any); setCurrentIndex(0); setIsSortOpen(false); playClickSound(); playHaptic(); }}
+                            style={{ padding: '12px 20px', cursor: 'pointer', fontFamily: 'var(--font-mono)', color: sortBy === val ? '#fff' : 'var(--text-secondary)', background: sortBy === val ? 'rgba(168, 85, 247, 0.3)' : 'transparent', transition: 'all 0.2s', borderLeft: sortBy === val ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
+                            onMouseEnter={(e) => { if(sortBy !== val) e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'; }}
+                            onMouseLeave={(e) => { if(sortBy !== val) e.currentTarget.style.background = 'transparent'; }}
+                          >
+                            {val === "date" ? "Sort by Date" : val === "rating" ? "Sort by Highest Rating" : "Sort by Highest Engagement"}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {activeMember ? (
@@ -542,15 +622,25 @@ export default function AdminDashboard() {
               {/* Profile Data */}
               <div style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '25px' }}>
                 
-                <div style={{ borderBottom: '1px solid var(--border-glass-hover)', paddingBottom: '20px' }}>
-                  <h2 style={{ fontSize: '2rem', color: 'var(--accent-primary)', marginBottom: '5px' }}>
-                    <ScrambleText text={activeMember.full_name || "UNKNOWN_USER"} />
-                  </h2>
-                  <div style={{ color: 'var(--text-secondary)', display: 'flex', gap: '15px', fontSize: '0.9rem' }}>
-                    <span>UID: <strong style={{ color: 'var(--text-primary)' }}><ScrambleText text={activeMember.uid || "N/A"} /></strong></span>
-                    <span>Branch: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.branch}</strong></span>
-                    <span>Section: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.section}</strong></span>
+                <div style={{ borderBottom: '1px solid var(--border-glass-hover)', paddingBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '15px' }}>
+                  <div>
+                    <h2 style={{ fontSize: '2rem', color: 'var(--accent-primary)', marginBottom: '5px' }}>
+                      <ScrambleText text={activeMember.full_name || "UNKNOWN_USER"} />
+                    </h2>
+                    <div style={{ color: 'var(--text-secondary)', display: 'flex', gap: '15px', fontSize: '0.9rem', flexWrap: 'wrap' }}>
+                      <span>UID: <strong style={{ color: 'var(--text-primary)' }}><ScrambleText text={activeMember.uid || "N/A"} /></strong></span>
+                      <span>Branch: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.branch}</strong></span>
+                      <span>Section: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.section}</strong></span>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => { playHapticHeavy(); deleteRecord(activeMember.uid); }}
+                    style={{ padding: '8px 15px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '4px', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s', boxShadow: '0 0 10px rgba(239,68,68,0.2)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; playHoverSound(); }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
+                  >
+                    X DELETE_RECORD
+                  </button>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
