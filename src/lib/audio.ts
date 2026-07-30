@@ -63,13 +63,14 @@ export const playClickSound = () => {
 // A pleasant chime for success/submission
 export const playSuccessSound = () => {
   if (!audioCtx) return;
+  const ctx = audioCtx;
 
   const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5 (A Major arpeggio)
-  const startTime = audioCtx.currentTime;
+  const startTime = ctx.currentTime;
 
   notes.forEach((freq, index) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
     osc.type = "sine";
     osc.frequency.value = freq;
@@ -79,7 +80,7 @@ export const playSuccessSound = () => {
     gain.gain.exponentialRampToValueAtTime(0.001, startTime + index * 0.1 + 0.4);
 
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(ctx.destination);
 
     osc.start(startTime + index * 0.1);
     osc.stop(startTime + index * 0.1 + 0.4);
