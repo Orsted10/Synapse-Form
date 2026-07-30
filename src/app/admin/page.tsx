@@ -347,8 +347,9 @@ export default function AdminDashboard() {
                 <Star size={48} color="#06b6d4" style={{ opacity: 0.5 }} />
               </motion.div>
 
-              <TiltWrapper>
-                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 2' }}>
+              <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
+                <TiltWrapper>
+                  <div className="admin-card-glow">
                   <h3 className="admin-card-title">Favorite Parts of Session</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -373,11 +374,13 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
+                  </div>
+                </TiltWrapper>
               </motion.div>
-            </TiltWrapper>
 
-              <TiltWrapper>
-                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
+              <motion.div variants={itemVariants} style={{ gridColumn: 'span 1' }}>
+                <TiltWrapper>
+                  <div className="admin-card-glow">
                   <h3 className="admin-card-title">Overall Metrics</h3>
                   <div style={{ height: '300px', width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -393,11 +396,13 @@ export default function AdminDashboard() {
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
-                </motion.div>
-              </TiltWrapper>
+                  </div>
+                </TiltWrapper>
+              </motion.div>
 
-            <TiltWrapper>
-                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
+              <motion.div variants={itemVariants} style={{ gridColumn: 'span 1' }}>
+                <TiltWrapper>
+                  <div className="admin-card-glow">
                   <h3 className="admin-card-title">Motivated to Participate?</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -422,11 +427,13 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
+                  </div>
+                </TiltWrapper>
               </motion.div>
-            </TiltWrapper>
 
-            <TiltWrapper>
-              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
+              <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
+                <TiltWrapper>
+                  <div className="admin-card-glow">
                 <h3 className="admin-card-title">Desired Future Events</h3>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -446,12 +453,14 @@ export default function AdminDashboard() {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+                  </div>
+                </TiltWrapper>
               </motion.div>
-            </TiltWrapper>
 
             {/* Suggestions */}
-            <TiltWrapper>
-              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
+              <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
+                <TiltWrapper>
+                  <div className="admin-card-glow">
                 <h3 className="admin-card-title" style={{ marginBottom: '20px' }}>Raw Suggestions & Feedback</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   {members.filter(m => m.suggestions).slice(0, 15).map((m, i) => (
@@ -467,8 +476,9 @@ export default function AdminDashboard() {
                     <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>... and {members.filter(m => m.suggestions).length - 15} more. Export CSV to view all.</div>
                   )}
                 </div>
+                  </div>
+                </TiltWrapper>
               </motion.div>
-            </TiltWrapper>
           </motion.div>
           )}
 
