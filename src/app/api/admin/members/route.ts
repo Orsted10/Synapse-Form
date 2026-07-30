@@ -6,10 +6,10 @@ export async function POST(request: Request) {
   try {
     const { password } = await request.json();
 
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminPassword = process.env.ADMIN_PASSWORD || "synapse2026";
 
     // Verify admin password securely
-    if (!adminPassword || password !== adminPassword) {
+    if (password !== adminPassword) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }
 

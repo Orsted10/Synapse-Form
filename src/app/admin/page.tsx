@@ -81,6 +81,9 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"summary" | "individual">("summary");
   
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"date" | "rating" | "engagement">("date");
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [logs, setLogs] = useState<string[]>(["[ SYS.AUTH ] Enter passphrase..."]);
 
@@ -227,7 +230,20 @@ export default function AdminDashboard() {
     );
   }
 
-  const activeMember = members[currentIndex];
+  // Filter and Sort Logic
+  const filteredMembers = members.filter(m => 
+    (m.full_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (m.uid?.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const sortedMembers = [...filteredMembers].sort((a, b) => {
+    if (sortBy === "rating") return (b.session_rating || 0) - (a.session_rating || 0);
+    if (sortBy === "engagement") return (b.engaging_rating || 0) - (a.engaging_rating || 0);
+    // default date sort
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
+
+  const activeMember = sortedMembers[currentIndex];
 
   return (
     <main className="admin-dashboard-container">
@@ -360,6 +376,26 @@ export default function AdminDashboard() {
               </motion.div>
             </TiltWrapper>
 
+              <TiltWrapper>
+                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
+                  <h3 className="admin-card-title">Overall Metrics</h3>
+                  <div style={{ height: '300px', width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={[
+                        { subject: 'Session Rating', A: parseFloat(avgSessionRating), fullMark: 5 },
+                        { subject: 'Engagement', A: parseFloat(avgEngagingRating), fullMark: 5 },
+                        { subject: 'Motivated (Yes%)', A: motivationData.find(d => d.name === "Yes") ? (motivationData.find(d => d.name === "Yes")!.value / members.length) * 5 : 0, fullMark: 5 }
+                      ]}>
+                        <PolarGrid stroke="var(--border-glass)" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} />
+                        <Radar name="Metrics" dataKey="A" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.5} />
+                        <Tooltip contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', borderRadius: '8px' }} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </motion.div>
+              </TiltWrapper>
+
             <TiltWrapper>
                 <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
                   <h3 className="admin-card-title">Motivated to Participate?</h3>
@@ -439,30 +475,55 @@ export default function AdminDashboard() {
           {/* ======================================= */}
           {/* INDIVIDUAL TAB                          */}
           {/* ======================================= */}
-          {activeTab === "individual" && activeMember && (
-            <TiltWrapper>
-              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="admin-card-glow" style={{ maxWidth: '800px', margin: '0 auto', padding: '0', overflow: 'hidden' }}>
-                
-                {/* Pagination Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 30px', borderBottom: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.4)' }}>
-                <button 
-                  onMouseEnter={playHoverSound}
-                  onClick={() => { playClickSound(); playHaptic(); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
-                  disabled={currentIndex === 0}
-                  className="nav-button"
-                  style={{ opacity: currentIndex === 0 ? 0.3 : 1, padding: '8px' }}
-                >
-                  &lt;
-                </button>
-                <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
-                  Record <span style={{ color: 'var(--accent-primary)', fontSize: '1.2rem', margin: '0 5px' }}>{currentIndex + 1}</span> of {members.length}
+          {activeTab === "individual" && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
+              
+              {/* Controls */}
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search by Name or UID..." 
+                    value={searchQuery}
+                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentIndex(0); }}
+                    style={{ width: '100%', padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#fff', outline: 'none' }}
+                  />
                 </div>
-                <button 
-                  onMouseEnter={playHoverSound}
-                  onClick={() => { playClickSound(); playHaptic(); setCurrentIndex(prev => Math.min(members.length - 1, prev + 1)); }}
-                  disabled={currentIndex === members.length - 1}
-                  className="nav-button"
-                  style={{ opacity: currentIndex === members.length - 1 ? 0.3 : 1, padding: '8px' }}
+                <select 
+                  value={sortBy} 
+                  onChange={(e: any) => { setSortBy(e.target.value); setCurrentIndex(0); }}
+                  style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#fff', outline: 'none' }}
+                >
+                  <option value="date" style={{ color: '#000' }}>Sort by Date</option>
+                  <option value="rating" style={{ color: '#000' }}>Sort by Highest Rating</option>
+                  <option value="engagement" style={{ color: '#000' }}>Sort by Highest Engagement</option>
+                </select>
+              </div>
+
+              {activeMember ? (
+                <TiltWrapper>
+                  <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="admin-card-glow" style={{ padding: '0', overflow: 'hidden' }}>
+                    
+                    {/* Pagination Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 30px', borderBottom: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.4)' }}>
+                    <button 
+                      onMouseEnter={playHoverSound}
+                      onClick={() => { playClickSound(); playHaptic(); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
+                      disabled={currentIndex === 0}
+                      className="nav-button"
+                      style={{ opacity: currentIndex === 0 ? 0.3 : 1, padding: '8px' }}
+                    >
+                      &lt;
+                    </button>
+                    <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                      Record <span style={{ color: 'var(--accent-primary)', fontSize: '1.2rem', margin: '0 5px' }}>{currentIndex + 1}</span> of {sortedMembers.length}
+                    </div>
+                    <button 
+                      onMouseEnter={playHoverSound}
+                      onClick={() => { playClickSound(); playHaptic(); setCurrentIndex(prev => Math.min(sortedMembers.length - 1, prev + 1)); }}
+                      disabled={currentIndex === sortedMembers.length - 1}
+                      className="nav-button"
+                  style={{ opacity: currentIndex === sortedMembers.length - 1 ? 0.3 : 1, padding: '8px' }}
                 >
                   &gt;
                 </button>

@@ -1642,9 +1642,12 @@ body {
 /* ── Step Page ───────────────────────────────── */
 .step-page {
   width: 100%;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  justify-content: space-between;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 /* ── Welcome Page ────────────────────────────── */
