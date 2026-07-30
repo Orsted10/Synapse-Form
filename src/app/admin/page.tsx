@@ -384,10 +384,11 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               </motion.div>
+            </TiltWrapper>
 
-              <TiltWrapper>
-                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
-                  <h3 className="admin-card-title">Desired Future Events</h3>
+            <TiltWrapper>
+              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
+                <h3 className="admin-card-title">Desired Future Events</h3>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={eventData} layout="vertical" margin={{ top: 5, right: 30, left: 200, bottom: 5 }}>
@@ -405,11 +406,12 @@ export default function AdminDashboard() {
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
-                  </div>
-                </motion.div>
-              </TiltWrapper>
+                </div>
+              </motion.div>
+            </TiltWrapper>
 
-              {/* Suggestions */}
+            {/* Suggestions */}
+            <TiltWrapper>
               <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
                 <h3 className="admin-card-title" style={{ marginBottom: '20px' }}>Raw Suggestions & Feedback</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -427,7 +429,8 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </motion.div>
-            </motion.div>
+            </TiltWrapper>
+          </motion.div>
           )}
 
           {/* ======================================= */}
