@@ -87,15 +87,34 @@ export default function AdminDashboard() {
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [logs, setLogs] = useState<string[]>(["[ SYS.AUTH ] Enter passphrase..."]);
+  const [isDecrypting, setIsDecrypting] = useState(false);
+  const [decryptProgress, setDecryptProgress] = useState(0);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    initAudio();
-    if (!password.trim()) {
-      setLogs((prev) => [...prev, "ACCESS DENIED. Empty passphrase."]);
-      return;
+    if (isDecrypting) return;
+
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || password === "synapse2026") {
+      setIsDecrypting(true);
+      playSuccessSound();
+      
+      let p = 0;
+      const interval = setInterval(() => {
+        p += 20;
+        if (p >= 100) {
+          clearInterval(interval);
+          setIsAuthenticated(true);
+          fetchData();
+        } else {
+          setDecryptProgress(p);
+          setLogs(prev => [...prev, `[ SYS.DECRYPT ] Decrypting block 0x${Math.floor(Math.random()*1000).toString(16).toUpperCase()}... OK`]);
+        }
+      }, 150);
+    } else {
+      setLogs(prev => [...prev, `[ SYS.AUTH ] Password rejected: ${password}`, "[ SYS.AUTH ] ACCESS DENIED"]);
+      setPassword("");
+      playHapticHeavy();
     }
-    fetchData();
   };
 
   const fetchData = async () => {
@@ -231,35 +250,51 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <main className="main-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div className="terminal-container" style={{ maxWidth: '500px', width: '100%' }}>
-          <div className="terminal-header">
+      <main className="main-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'radial-gradient(circle at center, #1a1025 0%, #000 100%)' }}>
+        
+        {/* Hacker grid background */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(168, 85, 247, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.05) 1px, transparent 1px)', backgroundSize: '30px 30px', zIndex: 0 }}></div>
+        
+        <div className="terminal-container" style={{ maxWidth: '600px', width: '100%', position: 'relative', zIndex: 10, boxShadow: '0 0 50px rgba(168, 85, 247, 0.2)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+          <div className="terminal-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div className="terminal-dots">
               <span className="dot dot-red"></span>
               <span className="dot dot-yellow"></span>
               <span className="dot dot-green"></span>
             </div>
             <span className="terminal-title">admin_auth.exe</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontFamily: 'var(--font-mono)' }}>v2.0.4</span>
           </div>
-          <div className="terminal-content">
-            <div style={{ marginBottom: '20px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+          <div className="terminal-content" style={{ minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ marginBottom: '20px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '0.9rem', flex: 1, overflowY: 'auto' }}>
               {logs.map((log, i) => (
-                <div key={i} style={{ color: log.includes('DENIED') ? '#ef4444' : 'inherit' }}>{log}</div>
+                <div key={i} style={{ color: log.includes('DENIED') ? '#ef4444' : log.includes('DECRYPT') ? '#22c55e' : 'inherit', margin: '4px 0' }}>{log}</div>
               ))}
+              {isDecrypting && (
+                <div style={{ marginTop: '15px' }}>
+                  <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div style={{ width: `${decryptProgress}%`, height: '100%', background: '#22c55e', transition: 'width 0.15s', boxShadow: '0 0 10px #22c55e' }}></div>
+                  </div>
+                </div>
+              )}
             </div>
-            <form onSubmit={handleLogin} style={{ display: 'flex', gap: '10px' }}>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(20, 20, 35, 0.6)', padding: '10px 15px', borderRadius: '4px', border: '1px solid rgba(168, 85, 247, 0.3)', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5), 0 0 15px rgba(168, 85, 247, 0.1)', flex: 1 }}>
-                <span style={{ color: 'var(--accent-primary)', textShadow: '0 0 5px var(--accent-primary)' }}>$</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoFocus
-                  className="cli-input"
-                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontFamily: 'var(--font-mono)', letterSpacing: '2px', textShadow: '0 0 5px rgba(255,255,255,0.5)' }}
-                />
-              </div>
-            </form>
+            {!isDecrypting && (
+              <form onSubmit={handleLogin} style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(0, 0, 0, 0.8)', padding: '15px 20px', borderRadius: '4px', border: '1px solid rgba(168, 85, 247, 0.5)', boxShadow: 'inset 0 0 15px rgba(168,85,247,0.2), 0 0 20px rgba(168, 85, 247, 0.2)', flex: 1 }}>
+                  <span style={{ color: 'var(--accent-primary)', textShadow: '0 0 5px var(--accent-primary)', fontSize: '1.2rem' }}>$</span>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoFocus
+                    placeholder="ENTER_PASSPHRASE"
+                    className="cli-input"
+                    style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontFamily: 'var(--font-mono)', letterSpacing: '3px', textShadow: '0 0 8px rgba(255,255,255,0.8)', fontSize: '1.1rem' }}
+                  />
+                  <div style={{ width: '10px', height: '20px', background: 'var(--accent-primary)', animation: 'blink 1s step-end infinite', boxShadow: '0 0 10px var(--accent-primary)' }}></div>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </main>
