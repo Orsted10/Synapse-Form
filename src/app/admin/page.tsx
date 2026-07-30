@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FeedbackFormData } from "@/lib/supabase";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { Download, Users, PieChart as PieChartIcon, User, Star } from "lucide-react";
+import TiltWrapper from "@/components/TiltWrapper";
+import { initAudio, playHoverSound, playClickSound, playSuccessSound } from "@/lib/audio";
 import "../globals.css";
 
 // COLORS
@@ -82,9 +84,11 @@ export default function AdminDashboard() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [logs, setLogs] = useState<string[]>(["[ SYS.AUTH ] Enter passphrase..."]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "synapse2026") {
+    initAudio();
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+      playSuccessSound();
       setIsAuthenticated(true);
       fetchData();
     } else {
@@ -241,7 +245,8 @@ export default function AdminDashboard() {
             <span className="terminal-title">synapse_feedback_analytics.exe</span>
           </div>
           <button 
-            onClick={() => { playHapticHeavy(); downloadCSV(); }}
+            onMouseEnter={playHoverSound}
+            onClick={() => { initAudio(); playClickSound(); playHapticHeavy(); downloadCSV(); }}
             className="export-btn-glow"
           >
             <Download size={16} /> EXPORT .CSV
@@ -251,8 +256,9 @@ export default function AdminDashboard() {
         {/* TABS */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-glass)', background: 'var(--bg-secondary)', position: 'relative' }}>
           <button 
+            onMouseEnter={playHoverSound}
             className={`admin-tab-glow ${activeTab === 'summary' ? 'active' : ''}`}
-            onClick={() => { playHaptic(); setActiveTab('summary'); }}
+            onClick={() => { initAudio(); playClickSound(); playHaptic(); setActiveTab('summary'); }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <PieChartIcon size={18} /> SUMMARY
@@ -263,8 +269,9 @@ export default function AdminDashboard() {
           </button>
           
           <button 
+            onMouseEnter={playHoverSound}
             className={`admin-tab-glow ${activeTab === 'individual' ? 'active' : ''}`}
-            onClick={() => { playHaptic(); setActiveTab('individual'); }}
+            onClick={() => { initAudio(); playClickSound(); playHaptic(); setActiveTab('individual'); }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <User size={18} /> INDIVIDUAL
@@ -322,9 +329,9 @@ export default function AdminDashboard() {
                 <Star size={48} color="#06b6d4" style={{ opacity: 0.5 }} />
               </motion.div>
 
-              {/* Favorite Part Pie Chart */}
-              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 2' }}>
-                <h3 className="admin-card-title">Favorite Parts of Session</h3>
+              <TiltWrapper>
+                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 2' }}>
+                  <h3 className="admin-card-title">Favorite Parts of Session</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -350,9 +357,9 @@ export default function AdminDashboard() {
                 </div>
               </motion.div>
 
-              {/* Motivation Level Donut */}
-              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
-                <h3 className="admin-card-title">Motivated to Participate?</h3>
+              <TiltWrapper>
+                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
+                  <h3 className="admin-card-title">Motivated to Participate?</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -378,9 +385,9 @@ export default function AdminDashboard() {
                 </div>
               </motion.div>
 
-              {/* Event Preferences Bar Chart */}
-              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
-                <h3 className="admin-card-title">Desired Future Events</h3>
+              <TiltWrapper>
+                <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
+                  <h3 className="admin-card-title">Desired Future Events</h3>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={eventData} layout="vertical" margin={{ top: 5, right: 30, left: 200, bottom: 5 }}>
@@ -398,8 +405,9 @@ export default function AdminDashboard() {
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              </TiltWrapper>
 
               {/* Suggestions */}
               <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
@@ -426,12 +434,14 @@ export default function AdminDashboard() {
           {/* INDIVIDUAL TAB                          */}
           {/* ======================================= */}
           {activeTab === "individual" && activeMember && (
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="admin-card-glow" style={{ maxWidth: '800px', margin: '0 auto', padding: '0', overflow: 'hidden' }}>
-              
-              {/* Pagination Header */}
+            <TiltWrapper>
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="admin-card-glow" style={{ maxWidth: '800px', margin: '0 auto', padding: '0', overflow: 'hidden' }}>
+                
+                {/* Pagination Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 30px', borderBottom: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.4)' }}>
                 <button 
-                  onClick={() => { playHaptic(); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
+                  onMouseEnter={playHoverSound}
+                  onClick={() => { playClickSound(); playHaptic(); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
                   disabled={currentIndex === 0}
                   className="nav-button"
                   style={{ opacity: currentIndex === 0 ? 0.3 : 1, padding: '8px' }}
@@ -442,7 +452,8 @@ export default function AdminDashboard() {
                   Record <span style={{ color: 'var(--accent-primary)', fontSize: '1.2rem', margin: '0 5px' }}>{currentIndex + 1}</span> of {members.length}
                 </div>
                 <button 
-                  onClick={() => { playHaptic(); setCurrentIndex(prev => Math.min(members.length - 1, prev + 1)); }}
+                  onMouseEnter={playHoverSound}
+                  onClick={() => { playClickSound(); playHaptic(); setCurrentIndex(prev => Math.min(members.length - 1, prev + 1)); }}
                   disabled={currentIndex === members.length - 1}
                   className="nav-button"
                   style={{ opacity: currentIndex === members.length - 1 ? 0.3 : 1, padding: '8px' }}

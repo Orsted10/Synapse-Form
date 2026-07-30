@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: "A community driven by peer-to-peer learning, knowledge sharing, and building the future.",
 };
 
+import CustomCursor from "@/components/CustomCursor";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${vt323.variable} ${dotGothic.variable} ${jetbrains.variable}`}>
       <body suppressHydrationWarning className={`${vt323.variable} ${dotGothic.variable} ${jetbrains.variable}`}>
+        <CustomCursor />
         <div className="terminal-decoration">
           SYSTEM_INIT: OK<br />
           MEM_ALLOC: 4096KB<br />

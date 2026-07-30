@@ -7,6 +7,8 @@ import ParticleField from "@/components/ParticleField";
 import LoadingSequence from "@/components/LoadingSequence";
 import VideoBackground from "@/components/VideoBackground";
 import ProgressBar from "@/components/ProgressBar";
+import TiltWrapper from "@/components/TiltWrapper";
+import { initAudio, playHoverSound, playClickSound, playSuccessSound } from "@/lib/audio";
 import { submitFeedbackForm, type FeedbackFormData } from "@/lib/supabase";
 
 const initialFormData: FeedbackFormData = {
@@ -172,7 +174,8 @@ function OptionBtn({
 }) {
   return (
     <motion.button
-      onClick={() => { playHaptic(); onClick(); }}
+      onMouseEnter={playHoverSound}
+      onClick={() => { playClickSound(); playHaptic(); onClick(); }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       className={`option-btn ${selected ? "option-btn-selected" : ""}`}
@@ -190,7 +193,8 @@ function OptionBtn({
 function RatingBtn({ num, selected, onClick, label }: { num: number; selected: boolean; onClick: () => void; label?: string }) {
   return (
     <motion.button
-      onClick={() => { playHaptic(); onClick(); }}
+      onMouseEnter={playHoverSound}
+      onClick={() => { playClickSound(); playHaptic(); onClick(); }}
       whileHover={{ scale: 1.12, y: -3 }}
       whileTap={{ scale: 0.95 }}
       className={`rating-btn ${selected ? "rating-btn-selected" : ""}`}
@@ -216,7 +220,8 @@ function NavButtons({
       className="nav-row"
     >
       <motion.button
-        onClick={() => { playHaptic(); onBack(); }}
+        onMouseEnter={playHoverSound}
+        onClick={() => { playClickSound(); playHaptic(); onBack(); }}
         whileHover={{ x: -3 }}
         whileTap={{ scale: 0.95 }}
         className="nav-back-btn"
@@ -228,7 +233,8 @@ function NavButtons({
       <div className="nav-right">
         {canSkip && onSkip && (
           <motion.button
-            onClick={() => { playHaptic(); onSkip(); }}
+            onMouseEnter={playHoverSound}
+            onClick={() => { playClickSound(); playHaptic(); onSkip(); }}
             whileHover={{ opacity: 0.8 }}
             className="nav-skip-btn"
           >
@@ -236,7 +242,8 @@ function NavButtons({
           </motion.button>
         )}
         <motion.button
-          onClick={() => { playHapticHeavy(); onNext(); }}
+          onMouseEnter={playHoverSound}
+          onClick={() => { playClickSound(); playHapticHeavy(); onNext(); }}
           disabled={isSubmitting}
           whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(168,85,247,0.6)" }}
           whileTap={{ scale: 0.97 }}
@@ -363,6 +370,7 @@ export default function FormSequence() {
     try {
       const { success, error } = await submitFeedbackForm(formData);
       if (!success) throw new Error(error || "Submission failed");
+      playSuccessSound();
       setDirection(1);
       setStep(13);
       const end = Date.now() + 3000;
@@ -432,9 +440,10 @@ export default function FormSequence() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
+              onMouseEnter={playHoverSound}
               whileHover={{ scale: 1.04, boxShadow: "0 0 50px rgba(168,85,247,0.7), 0 0 100px rgba(6,182,212,0.3)" }}
               whileTap={{ scale: 0.97 }}
-              onClick={goNext}
+              onClick={() => { initAudio(); playClickSound(); playHapticHeavy(); goNext(); }}
               className="welcome-cta"
             >
               <span className="cta-bracket">[ </span>
@@ -671,11 +680,13 @@ export default function FormSequence() {
       )}
 
       <main className="main-container">
-        <div className="form-shell">
-          <AnimatePresence mode="wait" custom={direction}>
-            {renderStep()}
-          </AnimatePresence>
-        </div>
+        <TiltWrapper className="w-full max-w-full flex justify-center items-center">
+          <div className="form-shell">
+            <AnimatePresence mode="wait" custom={direction}>
+              {renderStep()}
+            </AnimatePresence>
+          </div>
+        </TiltWrapper>
       </main>
     </>
   );
