@@ -32,6 +32,7 @@ export interface FeedbackFormData {
   event_preferences: string[];
   become_member: string;
   suggestions: string;
+  created_at?: string;
 }
 
 export async function submitFeedbackForm(
