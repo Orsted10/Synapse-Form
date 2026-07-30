@@ -597,8 +597,11 @@ export default function AdminDashboard() {
               </div>
             </motion.div>
           </TiltWrapper>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>No matching records found.</div>
           )}
-
+          </div>
+        )}
         </div>
       )}
     </main>
