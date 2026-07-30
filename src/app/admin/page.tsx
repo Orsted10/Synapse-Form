@@ -87,14 +87,11 @@ export default function AdminDashboard() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     initAudio();
-    if (password === "synapse2026") {
-      playSuccessSound();
-      setIsAuthenticated(true);
-      fetchData();
-    } else {
-      setLogs((prev) => [...prev, "ACCESS DENIED. Incorrect passphrase."]);
-      setPassword("");
+    if (!password.trim()) {
+      setLogs((prev) => [...prev, "ACCESS DENIED. Empty passphrase."]);
+      return;
     }
+    fetchData();
   };
 
   const fetchData = async () => {
@@ -111,11 +108,16 @@ export default function AdminDashboard() {
       const { success, data, error } = await response.json();
       
       if (success && data) {
+        playSuccessSound();
+        setIsAuthenticated(true);
         setMembers(data);
         setLogs((prev) => [...prev, `[ SYS.OK ] Retrieved ${data.length} records.`]);
       } else {
-        setError(error || "Failed to fetch data.");
-        setLogs((prev) => [...prev, `[ SYS.ERR ] ${error}`]);
+        setLogs((prev) => [...prev, `[ SYS.ERR ] ${error || "ACCESS DENIED. Incorrect passphrase."}`]);
+        setPassword("");
+        if (response.status === 401) {
+          playHapticHeavy();
+        }
       }
     } catch (err) {
       setError("Network error fetching database records.");
