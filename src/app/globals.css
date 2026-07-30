@@ -1632,10 +1632,11 @@ body {
   width: 100%;
   max-width: 700px;
   margin: 0 auto;
-  padding: clamp(16px, 5vw, 40px) clamp(16px, 5vw, 32px);
+  padding: clamp(60px, 10vh, 100px) clamp(16px, 5vw, 32px) 40px;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 /* ── Step Page ───────────────────────────────── */
@@ -2482,7 +2483,7 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at 50% 50%, #111116 0%, #030305 100%);
+  background: radial-gradient(circle at 50% 50%, #1f1f2e 0%, #0a0a0f 100%);
   color: var(--text-primary);
   font-family: var(--font-primary);
 }
@@ -2536,14 +2537,22 @@ body {
 }
 
 /* Glowing Card Hover Effects */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
 .admin-card-glow {
-  background: var(--surface-glass);
-  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 24px;
   position: relative;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .admin-card-glow:hover {

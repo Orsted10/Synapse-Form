@@ -296,6 +296,7 @@ export default function FormSequence() {
   const [direction, setDirection] = useState(1);
   const [showLoading, setShowLoading] = useState(true);
   const [formData, setFormData] = useState<FeedbackFormData>(initialFormData);
+  const [otherEventText, setOtherEventText] = useState("");
   const [errors, setErrors] = useState<{ [k: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -368,7 +369,14 @@ export default function FormSequence() {
   const submitForm = async () => {
     setIsSubmitting(true);
     try {
-      const { success, error } = await submitFeedbackForm(formData);
+      // Process "Other" event preference
+      const finalData = { ...formData };
+      if (finalData.event_preferences.includes("Other") && otherEventText.trim()) {
+        finalData.event_preferences = finalData.event_preferences.filter(e => e !== "Other");
+        finalData.event_preferences.push(`Other: ${otherEventText.trim()}`);
+      }
+
+      const { success, error } = await submitFeedbackForm(finalData);
       if (!success) throw new Error(error || "Submission failed");
       playSuccessSound();
       setDirection(1);
@@ -590,6 +598,18 @@ export default function FormSequence() {
                 <OptionBtn key={opt} label={opt} selected={formData.event_preferences.includes(opt)} onClick={() => handleMulti("event_preferences", opt)} multi />
               ))}
             </div>
+            {formData.event_preferences.includes("Other") && (
+              <div style={{ marginTop: '20px' }}>
+                <FancyInput 
+                  name="otherEventText" 
+                  value={otherEventText} 
+                  onChange={(e) => setOtherEventText(e.target.value)} 
+                  placeholder="Specify other events..." 
+                  type="text" 
+                  autoFocus
+                />
+              </div>
+            )}
             {errors.event_preferences && <div className="fancy-error"><span className="fancy-error-icon">⚠</span> {errors.event_preferences}</div>}
             <NavButtons onBack={goBack} onNext={goNext} nextLabel="MEMBERSHIP_STATUS.exe" />
           </div>
