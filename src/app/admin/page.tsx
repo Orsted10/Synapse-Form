@@ -356,8 +356,9 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               </motion.div>
+            </TiltWrapper>
 
-              <TiltWrapper>
+            <TiltWrapper>
                 <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
                   <h3 className="admin-card-title">Motivated to Participate?</h3>
                 <div style={{ height: '300px', width: '100%' }}>
