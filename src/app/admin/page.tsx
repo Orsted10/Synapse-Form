@@ -10,6 +10,67 @@ import "../globals.css";
 // COLORS
 const COLORS = ['#a855f7', '#06b6d4', '#22c55e', '#ec4899', '#f59e0b', '#8b5cf6'];
 
+// ── Utils ──────────────────────────────────────────────
+const playHaptic = () => {
+  if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate(40);
+  }
+};
+
+const playHapticHeavy = () => {
+  if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate([30, 50, 30]);
+  }
+};
+
+const scrambleChars = "!<>-_\\/[]{}—=+*^?#_";
+function ScrambleText({ text }: { text: string }) {
+  const [displayText, setDisplayText] = useState(text);
+  useEffect(() => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(
+        text.split("").map((letter, index) => {
+          if (index < iteration) return text[index];
+          return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+        }).join("")
+      );
+      if (iteration >= text.length) {
+        clearInterval(interval);
+      }
+      iteration += 1 / 2;
+    }, 28);
+    return () => clearInterval(interval);
+  }, [text]);
+  return <span>{displayText}</span>;
+}
+
+// ── Components ─────────────────────────────────────────
+function GlowProgressBar({ value, max = 5, color }: { value: number; max?: number; color: string }) {
+  const percentage = (value / max) * 100;
+  return (
+    <div className="glow-progress-track">
+      <div 
+        className="glow-progress-fill" 
+        style={{ width: `${percentage}%`, background: color, boxShadow: `0 0 10px ${color}` }}
+      />
+    </div>
+  );
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
+
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -163,9 +224,13 @@ export default function AdminDashboard() {
   const activeMember = members[currentIndex];
 
   return (
-    <main className="main-container" style={{ padding: '20px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <main className="admin-dashboard-container">
+      {/* CRT Overlays */}
+      <div className="vignette-overlay pointer-events-none"></div>
+      <div className="scanlines-overlay pointer-events-none"></div>
+
       {/* HEADER */}
-      <div className="terminal-container" style={{ margin: '0 auto 20px auto', width: '100%', maxWidth: '1400px' }}>
+      <div className="terminal-container" style={{ margin: '0 auto 20px auto', width: '100%', maxWidth: '1400px', position: 'relative', zIndex: 10 }}>
         <div className="terminal-header" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div className="terminal-dots">
@@ -176,29 +241,37 @@ export default function AdminDashboard() {
             <span className="terminal-title">synapse_feedback_analytics.exe</span>
           </div>
           <button 
-            onClick={downloadCSV}
-            className="action-button primary"
-            style={{ padding: '4px 12px', fontSize: '0.8rem', minHeight: 'unset', display: 'flex', alignItems: 'center', gap: '8px' }}
+            onClick={() => { playHapticHeavy(); downloadCSV(); }}
+            className="export-btn-glow"
           >
-            <Download size={14} /> EXPORT .CSV
+            <Download size={16} /> EXPORT .CSV
           </button>
         </div>
         
         {/* TABS */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-glass)', background: 'var(--bg-secondary)' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-glass)', background: 'var(--bg-secondary)', position: 'relative' }}>
           <button 
-            className={`admin-tab ${activeTab === 'summary' ? 'active' : ''}`}
-            onClick={() => setActiveTab('summary')}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'transparent', border: 'none', color: activeTab === 'summary' ? 'var(--accent-primary)' : 'var(--text-secondary)', borderBottom: activeTab === 'summary' ? '2px solid var(--accent-primary)' : '2px solid transparent', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontWeight: 'bold' }}
+            className={`admin-tab-glow ${activeTab === 'summary' ? 'active' : ''}`}
+            onClick={() => { playHaptic(); setActiveTab('summary'); }}
           >
-            <PieChartIcon size={18} /> SUMMARY
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PieChartIcon size={18} /> SUMMARY
+            </div>
+            {activeTab === 'summary' && (
+              <motion.div layoutId="activeTabUnderline" className="tab-underline" />
+            )}
           </button>
+          
           <button 
-            className={`admin-tab ${activeTab === 'individual' ? 'active' : ''}`}
-            onClick={() => setActiveTab('individual')}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'transparent', border: 'none', color: activeTab === 'individual' ? 'var(--accent-primary)' : 'var(--text-secondary)', borderBottom: activeTab === 'individual' ? '2px solid var(--accent-primary)' : '2px solid transparent', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontWeight: 'bold' }}
+            className={`admin-tab-glow ${activeTab === 'individual' ? 'active' : ''}`}
+            onClick={() => { playHaptic(); setActiveTab('individual'); }}
           >
-            <User size={18} /> INDIVIDUAL
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <User size={18} /> INDIVIDUAL
+            </div>
+            {activeTab === 'individual' && (
+              <motion.div layoutId="activeTabUnderline" className="tab-underline" />
+            )}
           </button>
         </div>
       </div>
@@ -216,41 +289,41 @@ export default function AdminDashboard() {
           {/* SUMMARY TAB                             */}
           {/* ======================================= */}
           {activeTab === "summary" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="admin-grid">
+            <motion.div variants={containerVariants} initial="hidden" animate="show" className="admin-grid" style={{ position: 'relative', zIndex: 10 }}>
               
               {/* Top Stats */}
-              <div className="admin-card stats-card" style={{ gridColumn: 'span 1', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '30px' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow stats-card" style={{ gridColumn: 'span 1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '10px' }}>TOTAL_RESPONSES</h3>
                   <div style={{ fontSize: '3rem', color: 'var(--accent-primary)', textShadow: '0 0 20px var(--accent-glow)' }}>
                     {members.length}
                   </div>
                 </div>
-                <Users size={48} color="var(--border-glass-hover)" />
-              </div>
+                <Users size={48} color="var(--accent-primary)" style={{ opacity: 0.5 }} />
+              </motion.div>
 
-              <div className="admin-card stats-card" style={{ gridColumn: 'span 1', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '30px' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow stats-card" style={{ gridColumn: 'span 1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '10px' }}>AVG_SESSION_RATING</h3>
                   <div style={{ fontSize: '3rem', color: '#22c55e', textShadow: '0 0 20px rgba(34, 197, 94, 0.3)' }}>
                     {avgSessionRating}
                   </div>
                 </div>
-                <Star size={48} color="rgba(34, 197, 94, 0.3)" />
-              </div>
+                <Star size={48} color="#22c55e" style={{ opacity: 0.5 }} />
+              </motion.div>
 
-              <div className="admin-card stats-card" style={{ gridColumn: 'span 1', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '30px' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow stats-card" style={{ gridColumn: 'span 1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '10px' }}>AVG_ENGAGEMENT</h3>
                   <div style={{ fontSize: '3rem', color: '#06b6d4', textShadow: '0 0 20px rgba(6, 182, 212, 0.3)' }}>
                     {avgEngagingRating}
                   </div>
                 </div>
-                <Star size={48} color="rgba(6, 182, 212, 0.3)" />
-              </div>
+                <Star size={48} color="#06b6d4" style={{ opacity: 0.5 }} />
+              </motion.div>
 
               {/* Favorite Part Pie Chart */}
-              <div className="admin-card" style={{ gridColumn: 'span 2' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 2' }}>
                 <h3 className="admin-card-title">Favorite Parts of Session</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -275,10 +348,10 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Motivation Level Donut */}
-              <div className="admin-card" style={{ gridColumn: 'span 1' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: 'span 1' }}>
                 <h3 className="admin-card-title">Motivated to Participate?</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -303,10 +376,10 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Event Preferences Bar Chart */}
-              <div className="admin-card" style={{ gridColumn: '1 / -1' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
                 <h3 className="admin-card-title">Desired Future Events</h3>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -326,10 +399,10 @@ export default function AdminDashboard() {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Suggestions */}
-              <div className="admin-card" style={{ gridColumn: '1 / -1' }}>
+              <motion.div variants={itemVariants} className="admin-card-glow" style={{ gridColumn: '1 / -1' }}>
                 <h3 className="admin-card-title" style={{ marginBottom: '20px' }}>Raw Suggestions & Feedback</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   {members.filter(m => m.suggestions).slice(0, 15).map((m, i) => (
@@ -345,8 +418,7 @@ export default function AdminDashboard() {
                     <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>... and {members.filter(m => m.suggestions).length - 15} more. Export CSV to view all.</div>
                   )}
                 </div>
-              </div>
-              
+              </motion.div>
             </motion.div>
           )}
 
@@ -354,12 +426,12 @@ export default function AdminDashboard() {
           {/* INDIVIDUAL TAB                          */}
           {/* ======================================= */}
           {activeTab === "individual" && activeMember && (
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="admin-card" style={{ maxWidth: '800px', margin: '0 auto', padding: '0' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="admin-card-glow" style={{ maxWidth: '800px', margin: '0 auto', padding: '0', overflow: 'hidden' }}>
               
               {/* Pagination Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 30px', borderBottom: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 30px', borderBottom: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.4)' }}>
                 <button 
-                  onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
+                  onClick={() => { playHaptic(); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
                   disabled={currentIndex === 0}
                   className="nav-button"
                   style={{ opacity: currentIndex === 0 ? 0.3 : 1, padding: '8px' }}
@@ -367,10 +439,10 @@ export default function AdminDashboard() {
                   &lt;
                 </button>
                 <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
-                  Record <span style={{ color: 'var(--text-primary)', fontSize: '1.2rem', margin: '0 5px' }}>{currentIndex + 1}</span> of {members.length}
+                  Record <span style={{ color: 'var(--accent-primary)', fontSize: '1.2rem', margin: '0 5px' }}>{currentIndex + 1}</span> of {members.length}
                 </div>
                 <button 
-                  onClick={() => setCurrentIndex(prev => Math.min(members.length - 1, prev + 1))}
+                  onClick={() => { playHaptic(); setCurrentIndex(prev => Math.min(members.length - 1, prev + 1)); }}
                   disabled={currentIndex === members.length - 1}
                   className="nav-button"
                   style={{ opacity: currentIndex === members.length - 1 ? 0.3 : 1, padding: '8px' }}
@@ -383,22 +455,26 @@ export default function AdminDashboard() {
               <div style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '25px' }}>
                 
                 <div style={{ borderBottom: '1px solid var(--border-glass-hover)', paddingBottom: '20px' }}>
-                  <h2 style={{ fontSize: '2rem', color: 'var(--accent-primary)', marginBottom: '5px' }}>{activeMember.full_name}</h2>
+                  <h2 style={{ fontSize: '2rem', color: 'var(--accent-primary)', marginBottom: '5px' }}>
+                    <ScrambleText text={activeMember.full_name || "UNKNOWN_USER"} />
+                  </h2>
                   <div style={{ color: 'var(--text-secondary)', display: 'flex', gap: '15px', fontSize: '0.9rem' }}>
-                    <span>UID: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.uid}</strong></span>
+                    <span>UID: <strong style={{ color: 'var(--text-primary)' }}><ScrambleText text={activeMember.uid || "N/A"} /></strong></span>
                     <span>Branch: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.branch}</strong></span>
                     <span>Section: <strong style={{ color: 'var(--text-primary)' }}>{activeMember.section}</strong></span>
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ background: 'var(--surface-glass)', padding: '15px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '5px' }}>SESSION_RATING</div>
-                    <div style={{ color: '#22c55e', fontSize: '1.5rem' }}>{activeMember.session_rating} / 5</div>
+                  <div style={{ background: 'var(--bg-primary)', padding: '20px', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '15px' }}>SESSION_RATING</div>
+                    <div style={{ color: '#22c55e', fontSize: '1.5rem', marginBottom: '10px', textAlign: 'right' }}>{activeMember.session_rating} / 5</div>
+                    <GlowProgressBar value={activeMember.session_rating} color="#22c55e" />
                   </div>
-                  <div style={{ background: 'var(--surface-glass)', padding: '15px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '5px' }}>ENGAGEMENT_RATING</div>
-                    <div style={{ color: '#06b6d4', fontSize: '1.5rem' }}>{activeMember.engaging_rating} / 5</div>
+                  <div style={{ background: 'var(--bg-primary)', padding: '20px', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '15px' }}>ENGAGEMENT_RATING</div>
+                    <div style={{ color: '#06b6d4', fontSize: '1.5rem', marginBottom: '10px', textAlign: 'right' }}>{activeMember.engaging_rating} / 5</div>
+                    <GlowProgressBar value={activeMember.engaging_rating} color="#06b6d4" />
                   </div>
                 </div>
 

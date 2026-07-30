@@ -2473,3 +2473,156 @@ body {
     margin-bottom: 10px;
   }
 }
+
+/* ── Admin Dashboard Overhaul ────────────────── */
+
+.admin-dashboard-container {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 50%, #111116 0%, #030305 100%);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+}
+
+/* Glowing Neon Export Button */
+.export-btn-glow {
+  position: relative;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.export-btn-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);
+  transition: all 0.4s ease;
+}
+
+.export-btn-glow:hover {
+  background: rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3);
+  text-shadow: 0 0 10px var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+.export-btn-glow:hover::before {
+  left: 100%;
+}
+
+.export-btn-glow:active {
+  transform: scale(0.95);
+}
+
+/* Glowing Card Hover Effects */
+.admin-card-glow {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.admin-card-glow:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(6, 182, 212, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Glowing Progress Bar */
+.glow-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.glow-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.glow-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+  animation: shimmer-progress 2s infinite linear;
+}
+
+@keyframes shimmer-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Tab Layout Underline */
+.admin-tab-glow {
+  position: relative;
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  outline: none;
+}
+
+.admin-tab-glow.active {
+  color: var(--accent-primary);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.tab-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 15px var(--accent-glow);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Recharts Tooltip Overhaul */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: rgba(10, 10, 15, 0.9) !important;
+  border: 1px solid var(--accent-primary) !important;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3) !important;
+  backdrop-filter: blur(10px);
+  color: #fff !important;
+  font-family: var(--font-mono);
+}
