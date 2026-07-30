@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   description: "A community driven by peer-to-peer learning, knowledge sharing, and building the future.",
 };
 
+import type { Viewport } from 'next';
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 import CustomCursor from "@/components/CustomCursor";
 
 export default function RootLayout({

@@ -700,13 +700,11 @@ export default function FormSequence() {
       )}
 
       <main className="main-container">
-        <TiltWrapper className="w-full max-w-full flex justify-center items-center">
-          <div className="form-shell">
-            <AnimatePresence mode="wait" custom={direction}>
-              {renderStep()}
-            </AnimatePresence>
-          </div>
-        </TiltWrapper>
+        <div className="form-shell" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <AnimatePresence mode="wait" custom={direction}>
+            {renderStep()}
+          </AnimatePresence>
+        </div>
       </main>
     </>
   );
