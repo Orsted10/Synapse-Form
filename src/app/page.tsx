@@ -43,10 +43,10 @@ const terminalFiles = [
 ];
 
 // ── Scramble Text ─────────────────────────────────────
-const scrambleChars = "!<>-_\\/[]{}—=+*^?#_";
 function ScrambleText({ text }: { text: string }) {
-  const [displayText, setDisplayText] = useState(text);
+  const [displayText, setDisplayText] = useState("");
   useEffect(() => {
+    const scrambleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
     let iteration = 0;
     const interval = setInterval(() => {
       setDisplayText(
@@ -56,8 +56,8 @@ function ScrambleText({ text }: { text: string }) {
         }).join("")
       );
       if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 2;
-    }, 28);
+      iteration += 3; // REALLY REALLY REALLY fast
+    }, 15);
     return () => clearInterval(interval);
   }, [text]);
   return <span>{displayText}</span>;
