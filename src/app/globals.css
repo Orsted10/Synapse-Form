@@ -1647,9 +1647,24 @@ body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   will-change: transform, opacity;
   transform: translateZ(0);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px; /* for scrollbar breathing room */
+}
+
+/* Custom Scrollbar for step-page */
+.step-page::-webkit-scrollbar {
+  width: 4px;
+}
+.step-page::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.step-page::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+  border-radius: 4px;
 }
 
 /* ── Welcome Page ────────────────────────────── */
